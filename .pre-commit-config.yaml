@@ -4,10 +4,16 @@ repos:
       - id: ruff
         name: Ruff
         entry: ruff check .
-        language: system
+        language: python
+        additional_dependencies:
+          - ruff
         pass_filenames: false
       - id: pytest
         name: Pruebas
         entry: python -m pytest -q
-        language: system
+        language: python
+        additional_dependencies:
+          - Flask>=3.1,<4.0
+          - pytest
+          - ruff
         pass_filenames: false
