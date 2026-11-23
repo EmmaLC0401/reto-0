@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>{% block title %}Punto de Juego{% endblock %} · Punto de Juego</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">P</span><span>Punto<span class="brand-light"> de Juego</span></span></a>
+    <nav class="nav">
+      {% if g.user %}
+        <span class="welcome">Hola, {{ g.user.username }}</span>
+        <form action="{{ url_for('logout') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="nav-link" type="submit">Cerrar sesión</button>
+        </form>
+      {% else %}
+        <a class="nav-link" href="{{ url_for('login') }}">Iniciar sesión</a>
+        <a class="button button-dark button-small" href="{{ url_for('register') }}">Crear cuenta</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="messages" role="status">
+          {% for category, message in messages %}
+            <p class="message message-{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer"><span>Hecho para que el partido empiece a tiempo.</span><span>© Punto de Juego</span></footer>
+</body>
+</html>

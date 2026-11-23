@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ "Crear cuenta" if mode == "register" else "Iniciar sesión" }}{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card">
+    <p class="eyebrow">{{ "EMPIEZA A JUGAR" if mode == "register" else "QUÉ BUENO VERTE" }}</p>
+    <h1>{{ "Crea tu cuenta." if mode == "register" else "Bienvenido de vuelta." }}</h1>
+    <p class="auth-intro">{{ "Un usuario, una cancha y tu próximo partido." if mode == "register" else "Inicia sesión para reservar tu próximo partido." }}</p>
+    <form method="post" class="auth-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="username">Nombre de usuario</label>
+      <input id="username" name="username" type="text" minlength="3" maxlength="40" autocomplete="username" required value="{{ request.form.get('username', '') }}">
+      <label for="password">Contraseña</label>
+      <input id="password" name="password" type="password" minlength="{{ 8 if mode == 'register' else 1 }}" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" required>
+      <button class="button button-dark auth-submit" type="submit">{{ "Crear cuenta" if mode == "register" else "Iniciar sesión" }} <span aria-hidden="true">→</span></button>
+    </form>
+    <p class="auth-switch">
+      {% if mode == "register" %}¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a>
+      {% else %}¿Primera vez por aquí? <a href="{{ url_for('register') }}">Crea una cuenta</a>{% endif %}
+    </p>
+  </div>
+  <div class="auth-aside"><span>EL JUEGO<br>EMPIEZA<br><i>CONTIGO.</i></span><small>PUNTO DE JUEGO · RESERVAS EN LÍNEA</small></div>
+</section>
+{% endblock %}

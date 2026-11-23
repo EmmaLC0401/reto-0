@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Reserva tu cancha{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow"><span class="live-dot"></span> TU PRÓXIMO PARTIDO EMPIEZA AQUÍ</p>
+    <h1>La cancha<br>te está <span>esperando.</span></h1>
+    <p class="hero-description">Encuentra tu lugar, elige la hora y deja que el juego hable.</p>
+    <a class="button button-lime" href="#canchas">Ver horarios <span aria-hidden="true">↓</span></a>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="art-circle"></div><div class="court-lines"><span></span><i></i><b></b></div>
+    <div class="art-label"><span>BUEN JUEGO</span><strong>01 — 90</strong></div>
+    <div class="art-ball">●</div>
+  </div>
+  <div class="hero-index"><span>01</span><span class="index-line"></span><span>RESERVAS ABIERTAS</span></div>
+</section>
+
+<section class="booking-section" id="canchas">
+  <div class="section-heading">
+    <div><p class="eyebrow">ELIGE TU MOMENTO</p><h2>Un partido a tu manera.</h2></div>
+    <form class="date-picker" method="get" action="{{ url_for('index') }}">
+      <label for="date">FECHA</label>
+      <input id="date" type="date" name="date" min="{{ min_date }}" value="{{ selected_day.isoformat() }}" onchange="this.form.submit()">
+    </form>
+  </div>
+
+  <div class="booking-layout">
+    <div class="courts">
+      {% for court in courts %}
+        <article class="court-card">
+          <div class="court-icon court-icon-{{ loop.index }}"><span>{% if court.sport == "Fútbol" %}◉{% elif court.sport == "Pádel" %}⌁{% else %}⌖{% endif %}</span></div>
+          <div class="court-info"><span class="sport-tag">{{ court.sport }}</span><h3>{{ court.name }}</h3><p>Reserva por bloques de 1 hora</p></div>
+          <span class="court-number">0{{ loop.index }}</span>
+          <div class="slots">
+            {% for hour in slots %}
+              {% set booked = (court.id, hour) in occupied %}
+              <form action="{{ url_for('book') }}" method="post" class="slot-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="court_id" value="{{ court.id }}">
+                <input type="hidden" name="date" value="{{ selected_day.isoformat() }}">
+                <input type="hidden" name="hour" value="{{ hour }}">
+                <button class="slot {% if booked %}slot-booked{% endif %}" type="submit" {% if booked or not g.user %}disabled{% endif %} aria-label="{{ hour }}:00, {% if booked %}ocupado{% elif not g.user %}inicia sesión para reservar{% else %}reservar{% endif %}">
+                  {{ "%02d:00"|format(hour) }}{% if booked %}<span>OCUPADO</span>{% endif %}
+                </button>
+              </form>
+            {% endfor %}
+          </div>
+          {% if not g.user %}<p class="login-hint"><a href="{{ url_for('login') }}">Inicia sesión</a> para elegir un horario.</p>{% endif %}
+        </article>
+      {% endfor %}
+    </div>
+    <aside class="side-note">
+      <span class="note-icon">↗</span><p class="eyebrow">ASÍ DE SIMPLE</p>
+      <h3>Tu cancha.<br>Tu hora.<br><span>Tu juego.</span></h3>
+      <p>Selecciona un horario disponible para reservar. Cada turno dura una hora.</p>
+      <div class="note-divider"></div>
+      <div class="legend"><span class="legend-dot"></span> Disponible <span class="legend-dot legend-occupied"></span> Ocupado</div>
+    </aside>
+  </div>
+</section>
+
+<section class="today-bookings">
+  <div class="section-heading compact-heading"><div><p class="eyebrow">EN LA AGENDA</p><h2>Partidos del día</h2></div><span class="day-label">{{ selected_day.strftime("%d / %m / %Y") }}</span></div>
+  {% if reservations %}
+    <div class="reservation-list">
+      {% for reservation in reservations %}
+        <div class="reservation-row">
+          <div class="reservation-time">{{ reservation.starts_at[11:16] }}<span>— {{ reservation.ends_at[11:16] }}</span></div>
+          <div class="reservation-court"><strong>{{ reservation.court_name }}</strong><span>{{ reservation.sport }}</span></div>
+          <div class="reservation-player">Turno reservado</div>
+          {% if g.user and g.user.id == reservation.user_id %}
+            <form action="{{ url_for('cancel_booking', reservation_id=reservation.id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="cancel-button" type="submit">Cancelar</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">Todavía no hay partidos para esta fecha. ¿Quién se apunta?</p>
+  {% endif %}
+</section>
+{% endblock %}
