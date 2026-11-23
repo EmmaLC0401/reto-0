@@ -85,7 +85,7 @@ class BookingAppTests(unittest.TestCase):
         )
         self.register("jugador2")
         conflict = self.book(1, 10, day)
-        self.assertIn("Ese horario acaba de ocuparse".encode(), conflict.data)
+        self.assertIn(b"Ese horario acaba de ocuparse", conflict.data)
 
         available = self.book(2, 10, day)
         self.assertIn("¡Cancha reservada!".encode(), available.data)

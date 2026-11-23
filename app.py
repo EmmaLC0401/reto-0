@@ -19,7 +19,6 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-
 HOUR_SLOTS = range(8, 22)
 COURTS = (
     ("Fútbol 5", "Fútbol"),
@@ -94,8 +93,7 @@ def create_app(test_config=None):
             selected_day = date.fromisoformat(request.args.get("date", ""))
         except ValueError:
             selected_day = date.today()
-        if selected_day < date.today():
-            selected_day = date.today()
+        selected_day = max(selected_day, date.today())
 
         reservations = get_db().execute(
             """
