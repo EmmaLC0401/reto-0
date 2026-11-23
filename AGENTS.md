@@ -36,3 +36,8 @@ ruff check .
 - No hacer commit ni push.
 
 ## Lecciones aprendidas
+- En hooks locales de Pre-commit, usa `language: python` en vez de `system` para evitar depender de herramientas instaladas globalmente.
+- Declara en `additional_dependencies` los paquetes que necesita ejecutar cada hook dentro de su entorno aislado.
+- Al probar que un ejecutable no está disponible en un hook, quita del `PATH` heredado los directorios que lo contienen; el entorno del hook puede seguir heredando herramientas del proceso padre.
+- Las pruebas que ejecutan `python -m pytest` desde Pre-commit deben usar una variable de entorno de guarda para evitar recursión.
+- `ruff check .` también analiza `tests/`; conserva sus imports ordenados y pasa `check=False` a `subprocess.run` cuando se inspecciona el código de salida.
